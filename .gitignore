@@ -237,3 +237,6 @@ env/
 .agents/
 AGENTS.md
 PROJECT_NOTES.md
+
+graphify-out/.graphify_*
+graphify-out/cache/

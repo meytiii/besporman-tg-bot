@@ -8,7 +8,6 @@ import re
 import unicodedata
 from typing import Set
 
-# Character normalization table (Arabic to Persian variants)
 CHAR_MAP = {
     "ك": "ک",
     "ي": "ی",
@@ -22,26 +21,34 @@ CHAR_MAP = {
     "ء": "",
 }
 
-# Inappropriate word roots (checked with token boundaries or exact stems)
-# Stored in normalized form. No ZWNJ used.
-BLOCKED_TERMS: Set[str] = {
-    # Persian vulgarities & profanities (exact tokens / stems)
-    "کص", "کسکش", "کصکش", "کونکش", "کونی", "کون",
-    "جنده", "قحبه", "لاشی", "دیوس", "دئیوس", "حرومزاده",
-    "حروم لقمه", "خارکصه", "مادرجنده", "ننه جنده", "کیر",
-    "سکس", "پورن", "سیکتیر", "سیکتر", "کسشر", "کصشر", "کسشعر",
-    "گه خور", "عوضی", "پدرسگ", "پدر سگ", "مادر قهوه", "مادرسگ",
-    "بی ناموس", "بیناموس", "اوبی", "چس",
-    # English vulgarities
-    "fuck", "fucker", "fucking", "bitch", "cunt", "dick", "pussy",
-    "asshole", "motherfucker", "bastard", "slut", "whore",
+# Strong profanity stems that should trigger even if suffixes/prefixes are attached
+# (e.g. کسکشیه, جنده ها, فاکینگ, etc.)
+STRONG_BLOCKED_STEMS: Set[str] = {
+    "کسکش", "کصکش", "کونکش", "جنده", "قحبه", "لاشی", "دیوس",
+    "دئیوس", "حرومزاده", "حروم لقمه", "خارکصه", "مادرجنده", "ننه جنده",
+    "سیکتیر", "سیکتر", "کسشر", "کصشر", "کسشعر", "پدرسگ", "پدر سگ",
+    "مادر قهوه", "مادرسگ", "بی ناموس", "بیناموس", "اوبی",
+    "fuck", "fucker", "fucking", "bitch", "cunt", "asshole", "motherfucker", "whore"
 }
 
-# Whitelist to ensure specific innocent words with similar substrings are never blocked
+# Standalone blocked words (triggered on exact token match or with standard suffixes)
+STANDALONE_BLOCKED_WORDS: Set[str] = {
+    "کص", "کون", "کونی", "کیر", "سکس", "پورن", "عوضی", "چس",
+    "dick", "pussy", "bastard", "slut"
+}
+
+# Common Persian suffixes to strip during token stemming
+COMMON_SUFFIXES = [
+    "هایم", "هایت", "هایش", "هایمان", "هایتان", "هایشان",
+    "هایی", "ها", "های", "تون", "شون", "مون", "تان", "شان",
+    "مان", "یه", "رو", "ست", "تر", "ترین", "ام", "ات", "اش", "ی"
+]
+
 SAFE_EXCEPTIONS: Set[str] = {
     "پیگیری", "دستگیر", "دستگیری", "مسکن", "سکسکه",
     "کوسه", "پاینده", "تشکر", "عکس", "بسکتبال", "فروشگاه",
-    "پروژه", "برنامه", "برنامه نویسی", "توسعه", "پشتیبانی"
+    "پروژه", "برنامه", "برنامه نویسی", "توسعه", "پشتیبانی",
+    "کاربر", "سیستم", "شرکت", "مدیریت", "سفارش", "تیم"
 }
 
 
@@ -50,41 +57,36 @@ def normalize_persian_text(text: str) -> str:
     if not text:
         return ""
 
-    # Normalize unicode
     text = unicodedata.normalize("NFKD", text)
 
-    # Remove diacritics / tashkeel (0x064B - 0x0652) and zero-width characters
     cleaned_chars = []
     for ch in text:
-        # Skip zero-width joiners/non-joiners and diacritics
         if ch in {"\u200c", "\u200b", "\u200d", "\ufeff"}:
             cleaned_chars.append(" ")
             continue
         code = ord(ch)
         if 0x064B <= code <= 0x0652 or code == 0x0670:
             continue
-        # Apply char mapping
         cleaned_chars.append(CHAR_MAP.get(ch, ch))
 
     normalized = "".join(cleaned_chars).lower()
-
-    # Remove symbols/punctuation that could be used for spacing obfuscation (e.g. "ف.ح.ش")
-    # Replace non-alphanumeric chars with spaces
     normalized = re.sub(r"[^\w\s\u0600-\u06FF]", " ", normalized)
-
-    # Collapse repeated consecutive characters (e.g., 'سسسسلااام' -> 'سلام')
+    # Collapse repeated consecutive characters (e.g. سسسلااام -> سلام)
     normalized = re.sub(r"(.)\1{2,}", r"\1", normalized)
-
-    # Collapse whitespace
     normalized = re.sub(r"\s+", " ", normalized).strip()
     return normalized
 
 
-def is_profane(text: str) -> bool:
-    """Evaluate whether the given text contains prohibited profanity.
+def _strip_persian_suffixes(word: str) -> str:
+    """Strip common Persian suffixes from a word."""
+    for sfx in COMMON_SUFFIXES:
+        if word.endswith(sfx) and len(word) > len(sfx) + 2:
+            return word[:-len(sfx)]
+    return word
 
-    Returns True if inappropriate content is detected, False otherwise.
-    """
+
+def is_profane(text: str) -> bool:
+    """Evaluate whether the given text contains prohibited profanity."""
     if not text:
         return False
 
@@ -92,30 +94,29 @@ def is_profane(text: str) -> bool:
     if not normalized:
         return False
 
+    # Check for safe patterns first
     tokens = normalized.split()
 
-    # Check safe exceptions first
-    # If all tokens are safe exceptions, pass immediately
-    filtered_tokens = [t for t in tokens if t not in SAFE_EXCEPTIONS]
-    if not filtered_tokens:
-        return False
-
-    # Check individual tokens
-    for token in filtered_tokens:
-        if token in BLOCKED_TERMS:
-            return True
-
-    # Check multi-word profanities or exact substring patterns with boundaries
-    for phrase in BLOCKED_TERMS:
-        if " " in phrase:
-            if phrase in normalized:
+    # 1. Check strong profanity stems (even when inflected)
+    for stem in STRONG_BLOCKED_STEMS:
+        if " " in stem:
+            if stem in normalized:
                 return True
         else:
-            # Check with word boundaries
-            pattern = rf"(^|\s){re.escape(phrase)}(\s|$)"
-            if re.search(pattern, normalized):
-                # Verify it's not a safe compound
-                if not any(token in SAFE_EXCEPTIONS for token in tokens if phrase in token):
-                    return True
+            for token in tokens:
+                # If token matches or contains strong stem and is not safe
+                if stem in token:
+                    if not any(safe in token for safe in SAFE_EXCEPTIONS):
+                        return True
+
+    # 2. Check standalone words (exact token or stemmed token)
+    for token in tokens:
+        if any(safe in token for safe in SAFE_EXCEPTIONS):
+            continue
+        if token in STANDALONE_BLOCKED_WORDS:
+            return True
+        stemmed = _strip_persian_suffixes(token)
+        if stemmed in STANDALONE_BLOCKED_WORDS:
+            return True
 
     return False

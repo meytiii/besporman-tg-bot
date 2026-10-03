@@ -1,5 +1,3 @@
-"""Handlers for team introduction and developer resumes (تیم و رزومه)."""
-
 from pathlib import Path
 from aiogram import F, Router
 from aiogram.filters import Command
@@ -10,14 +8,11 @@ from besporman_tg_bot.keyboards.user_kb import get_team_keyboard
 
 router = Router(name="team")
 
-# Local storage path for uploaded resume documents
 ASSETS_DIR = Path("assets/resumes")
-
 
 @router.message(Command("team"))
 @router.message(F.text == texts.BTN_TEAM)
 async def handle_team_overview(message: Message) -> None:
-    """Display core developer profiles and team description."""
     content = (
         f"{texts.TEAM_INTRO}\n\n"
         f"👨‍💻 <b>{texts.DEV_1_ALIAS}</b>\n"
@@ -33,10 +28,8 @@ async def handle_team_overview(message: Message) -> None:
         parse_mode="HTML",
     )
 
-
 @router.callback_query(F.data == "resume_dev1")
 async def handle_resume_dev1(callback: CallbackQuery) -> None:
-    """Send resume file or placeholder notice for developer 1."""
     await callback.answer()
     resume_file = ASSETS_DIR / "resume_dev1.pdf"
     if resume_file.exists():
@@ -55,10 +48,8 @@ async def handle_resume_dev1(callback: CallbackQuery) -> None:
                 parse_mode="HTML",
             )
 
-
 @router.callback_query(F.data == "resume_dev2")
 async def handle_resume_dev2(callback: CallbackQuery) -> None:
-    """Send resume file or placeholder notice for developer 2."""
     await callback.answer()
     resume_file = ASSETS_DIR / "resume_dev2.pdf"
     if resume_file.exists():

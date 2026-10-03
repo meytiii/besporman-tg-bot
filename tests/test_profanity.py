@@ -1,8 +1,5 @@
-"""Test suite for profanity filtering and false positive avoidance."""
-
 import pytest
 from besporman_tg_bot.utils.profanity_filter import is_profane, normalize_persian_text
-
 
 @pytest.mark.parametrize(
     "clean_text",
@@ -19,9 +16,7 @@ from besporman_tg_bot.utils.profanity_filter import is_profane, normalize_persia
     ],
 )
 def test_profanity_filter_clean_texts(clean_text: str):
-    """Ensure legitimate messages are NEVER rejected."""
     assert is_profane(clean_text) is False
-
 
 @pytest.mark.parametrize(
     "profane_text",
@@ -38,12 +33,9 @@ def test_profanity_filter_clean_texts(clean_text: str):
     ],
 )
 def test_profanity_filter_blocked_texts(profane_text: str):
-    """Ensure vulgarities and insults are blocked correctly."""
     assert is_profane(profane_text) is True
 
-
 def test_normalization_removes_repeated_chars_and_diacritics():
-    """Verify normalization collapses repetitions and diacritics."""
     raw = "سسسسلاااام مَردُم"
     norm = normalize_persian_text(raw)
     assert "سلام" in norm

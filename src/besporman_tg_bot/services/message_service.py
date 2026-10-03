@@ -1,12 +1,9 @@
-"""Message service for logging client and admin communications."""
-
 from datetime import datetime
 from typing import List, Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from besporman_tg_bot.db.models import Message
-
 
 async def save_message(
     session: AsyncSession,
@@ -18,7 +15,6 @@ async def save_message(
     message_type: str = "TEXT",
     telegram_message_id: Optional[int] = None,
 ) -> Message:
-    """Save an incoming or outgoing message to database history."""
     msg = Message(
         order_id=order_id,
         user_id=user_id,
@@ -34,9 +30,7 @@ async def save_message(
     await session.refresh(msg)
     return msg
 
-
 async def get_order_messages(session: AsyncSession, order_id: int) -> List[Message]:
-    """Retrieve message history for an order."""
     stmt = (
         select(Message)
         .where(Message.order_id == order_id)

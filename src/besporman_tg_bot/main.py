@@ -1,8 +1,3 @@
-"""Main entrypoint for Bespor Man Telegram bot.
-
-Runs either Long Polling or Webhook server depending on configuration.
-"""
-
 import asyncio
 import logging
 import sys
@@ -22,9 +17,7 @@ logging.basicConfig(
 
 logger = logging.getLogger("besporman_tg_bot")
 
-
 async def on_startup(bot) -> None:
-    """Pre-flight tasks: DB initialization, schema validation, and seeding."""
     logger.info("Initializing database...")
     await init_db()
 
@@ -34,15 +27,12 @@ async def on_startup(bot) -> None:
 
     logger.info("Bespor Man bot initialized successfully.")
 
-
 async def run_polling() -> None:
-    """Run bot via Long Polling mode."""
     bot = create_bot()
     dp = create_dispatcher()
 
     await on_startup(bot)
 
-    # Drop any pending updates accumulated while offline
     logger.info("Dropping pending updates and starting polling...")
     await bot.delete_webhook(drop_pending_updates=True)
 
@@ -51,9 +41,7 @@ async def run_polling() -> None:
     finally:
         await bot.session.close()
 
-
 def run_webhook() -> None:
-    """Run bot via Webhook server mode."""
     bot = create_bot()
     dp = create_dispatcher()
 
@@ -94,14 +82,11 @@ def run_webhook() -> None:
         port=settings.WEBAPP_PORT,
     )
 
-
 def main() -> None:
-    """CLI entrypoint."""
     if settings.WEBHOOK_MODE:
         run_webhook()
     else:
         asyncio.run(run_polling())
-
 
 if __name__ == "__main__":
     main()

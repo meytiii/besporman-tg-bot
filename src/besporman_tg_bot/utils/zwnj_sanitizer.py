@@ -1,9 +1,3 @@
-"""ZWNJ (Zero Width Non-Joiner / Half-Space / U+200C) detection and sanitization utilities.
-
-Enforces the absolute project requirement:
-ZERO ZWNJ in all Persian user-facing text, button labels, templates, messages, DB content, and logs.
-"""
-
 from pathlib import Path
 import sys
 from typing import List, Tuple
@@ -11,26 +5,17 @@ from typing import List, Tuple
 ZWNJ_CHAR = "\u200c"
 ZWNJ_BYTES = b"\xe2\x80\x8c"
 
-
 def contains_zwnj(text: str) -> bool:
-    """Check if the provided text contains any ZWNJ character."""
     if not text:
         return False
     return ZWNJ_CHAR in text
 
-
 def sanitize_zwnj(text: str) -> str:
-    """Replace any ZWNJ character with a standard space."""
     if not text:
         return ""
     return text.replace(ZWNJ_CHAR, " ")
 
-
 def scan_directory_for_zwnj(root_path: Path) -> List[Tuple[str, int, str]]:
-    """Scan all source code, markdown, templates, and data files for ZWNJ.
-
-    Returns a list of tuples: (relative_file_path, line_number, line_content).
-    """
     violations: List[Tuple[str, int, str]] = []
     ignored_parts = {".git", ".venv", "__pycache__", ".pytest_cache", ".ruff_cache"}
 
@@ -39,7 +24,6 @@ def scan_directory_for_zwnj(root_path: Path) -> List[Tuple[str, int, str]]:
             continue
         if any(part in path.parts for part in ignored_parts):
             continue
-        # Only inspect text-based files
         if path.suffix.lower() not in {".py", ".md", ".json", ".txt", ".sql", ".env", ".example", ".yaml", ".yml"}:
             continue
 
@@ -55,9 +39,7 @@ def scan_directory_for_zwnj(root_path: Path) -> List[Tuple[str, int, str]]:
 
     return violations
 
-
 def main() -> None:
-    """CLI scanner entrypoint."""
     root = Path.cwd()
     violations = scan_directory_for_zwnj(root)
     if violations:
@@ -66,7 +48,6 @@ def main() -> None:
             print(f"  [!] {file_path}:{line_no} -> {content}")
         sys.exit(1)
     print("SUCCESS: 0 occurrences of ZWNJ (U+200C) detected across entire project.")
-
 
 if __name__ == "__main__":
     main()

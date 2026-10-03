@@ -1,10 +1,3 @@
-"""Database seeder for Bespor Man bot.
-
-Populates initial portfolio categories and marked placeholder entries
-if the database is currently unseeded.
-CRITICAL: ZERO ZWNJ. Clearly marked placeholders only, no fabricated fake reviews.
-"""
-
 import logging
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -101,10 +94,7 @@ INITIAL_TESTIMONIALS = [
     },
 ]
 
-
 async def seed_initial_data(session: AsyncSession) -> None:
-    """Populate initial seed data if tables are empty."""
-    # Check portfolio
     res_port = await session.execute(select(Portfolio).limit(1))
     if res_port.scalar_one_or_none() is None:
         logger.info("Seeding initial portfolio items...")
@@ -133,7 +123,6 @@ async def seed_initial_data(session: AsyncSession) -> None:
         await session.commit()
         logger.info("Portfolio seeding completed.")
 
-    # Check testimonials
     res_test = await session.execute(select(Testimonial).limit(1))
     if res_test.scalar_one_or_none() is None:
         logger.info("Seeding initial testimonials...")

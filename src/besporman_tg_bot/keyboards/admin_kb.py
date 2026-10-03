@@ -1,15 +1,9 @@
-"""Admin keyboards and management controls.
-CRITICAL: ZERO ZWNJ in all button labels.
-"""
-
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from besporman_tg_bot.core import texts
 from besporman_tg_bot.db.models import OrderStatus
 
-
 def get_admin_order_actions_keyboard(order_id: int) -> InlineKeyboardMarkup:
-    """Inline controls for an administrator on a specific order."""
     keyboard = [
         [
             InlineKeyboardButton(text=texts.BTN_ADMIN_REPLY, callback_data=f"adm_reply:{order_id}"),
@@ -28,9 +22,7 @@ def get_admin_order_actions_keyboard(order_id: int) -> InlineKeyboardMarkup:
     ]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-
 def get_admin_status_selection_keyboard(order_id: int) -> InlineKeyboardMarkup:
-    """Keyboard for selecting a new status for an order."""
     keyboard = []
     for status_key, label in texts.STATUS_LABELS.items():
         keyboard.append([
@@ -45,9 +37,7 @@ def get_admin_status_selection_keyboard(order_id: int) -> InlineKeyboardMarkup:
     ])
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-
 def get_admin_dashboard_keyboard() -> InlineKeyboardMarkup:
-    """Admin home dashboard menu."""
     keyboard = [
         [
             InlineKeyboardButton(text="🚨 سفارش های جدید", callback_data="adm_list:NEW"),
@@ -60,9 +50,7 @@ def get_admin_dashboard_keyboard() -> InlineKeyboardMarkup:
     ]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-
 def get_admin_cancel_keyboard() -> InlineKeyboardMarkup:
-    """Inline cancel button for admin operations."""
     return InlineKeyboardMarkup(
         inline_keyboard=[[InlineKeyboardButton(text="❌ انصراف", callback_data="adm_cancel")]]
     )

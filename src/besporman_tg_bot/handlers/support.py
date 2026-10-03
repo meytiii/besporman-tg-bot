@@ -1,5 +1,3 @@
-"""Handlers for customer support communication."""
-
 from aiogram import Bot, F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -16,17 +14,14 @@ from besporman_tg_bot.utils.profanity_filter import is_profane
 
 router = Router(name="support")
 
-
 @router.message(Command("support"))
 @router.message(F.text == texts.BTN_SUPPORT)
 async def handle_support_start(message: Message, state: FSMContext) -> None:
-    """Prompt user for support inquiry."""
     await state.set_state(SupportStates.waiting_for_message)
     await message.answer(
         text=texts.SUPPORT_INTRO,
         reply_markup=get_cancel_keyboard(),
     )
-
 
 @router.message(SupportStates.waiting_for_message, F.text)
 async def handle_support_message(
@@ -36,14 +31,12 @@ async def handle_support_message(
     db_user: User,
     bot: Bot,
 ) -> None:
-    """Receive support message, filter profanity, log, and forward to admins."""
     content = message.text.strip()
 
     if is_profane(content):
         await message.answer(texts.PROFANITY_BLOCKED)
         return
 
-    # Persist message
     await save_message(
         session=session,
         user_id=db_user.id,
@@ -56,13 +49,11 @@ async def handle_support_message(
 
     await state.clear()
 
-    # Confirm to client
     await message.answer(
         text=texts.SUPPORT_RECEIVED,
         reply_markup=get_main_menu_keyboard(),
     )
 
-    # Admin notification
     client_name = message.from_user.full_name or "نامشخص"
     username_str = f"@{message.from_user.username}" if message.from_user.username else "ندارد"
 

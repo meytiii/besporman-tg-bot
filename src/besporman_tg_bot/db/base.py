@@ -1,8 +1,3 @@
-"""Database base and async session management.
-
-Supports SQLite (with WAL mode enabled) and PostgreSQL.
-"""
-
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -13,12 +8,9 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import event
 from besporman_tg_bot.core.config import settings
 
-
 class Base(DeclarativeBase):
     pass
 
-
-# Configure engine
 connect_args = {}
 if settings.DATABASE_URL.startswith("sqlite"):
     connect_args["check_same_thread"] = False
@@ -29,7 +21,6 @@ engine = create_async_engine(
     connect_args=connect_args,
 )
 
-# Enable WAL mode and foreign keys for SQLite
 if settings.DATABASE_URL.startswith("sqlite"):
     @event.listens_for(engine.sync_engine, "connect")
     def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -46,9 +37,7 @@ async_session_factory = async_sessionmaker(
     autoflush=False,
 )
 
-
 async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
-    """Dependency / generator providing an async database session."""
     async with async_session_factory() as session:
         try:
             yield session
@@ -58,8 +47,6 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         finally:
             await session.close()
 
-
 async def init_db() -> None:
-    """Initialize database tables."""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

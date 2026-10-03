@@ -1,13 +1,7 @@
-"""Database session middleware.
-
-Provides an async database session for every handled event.
-"""
-
 from typing import Any, Awaitable, Callable, Dict
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
 from besporman_tg_bot.db.base import async_session_factory
-
 
 class DbSessionMiddleware(BaseMiddleware):
     async def __call__(

@@ -1,8 +1,3 @@
-"""Database models for Bespor Man Telegram bot.
-
-Implements Users, Orders, Messages, Portfolio, Testimonials, and AdminAuditLog.
-"""
-
 from datetime import datetime
 from typing import List, Optional
 from sqlalchemy import (
@@ -18,7 +13,6 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from besporman_tg_bot.db.base import Base
 
-
 class OrderStatus:
     NEW = "NEW"
     UNDER_REVIEW = "UNDER_REVIEW"
@@ -28,12 +22,10 @@ class OrderStatus:
     REJECTED = "REJECTED"
     CLOSED = "CLOSED"
 
-
 class SenderType:
     CLIENT = "CLIENT"
     ADMIN = "ADMIN"
     SYSTEM = "SYSTEM"
-
 
 class User(Base):
     __tablename__ = "users"
@@ -47,7 +39,6 @@ class User(Base):
 
     orders: Mapped[List["Order"]] = relationship("Order", back_populates="user", cascade="all, delete-orphan")
     messages: Mapped[List["Message"]] = relationship("Message", back_populates="user")
-
 
 class Order(Base):
     __tablename__ = "orders"
@@ -63,23 +54,21 @@ class Order(Base):
     user: Mapped["User"] = relationship("User", back_populates="orders")
     messages: Mapped[List["Message"]] = relationship("Message", back_populates="order", cascade="all, delete-orphan")
 
-
 class Message(Base):
     __tablename__ = "messages"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     order_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("orders.id", ondelete="CASCADE"), nullable=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    sender_type: Mapped[str] = mapped_column(String(16), nullable=False)  # CLIENT, ADMIN, SYSTEM
-    sender_id: Mapped[int] = mapped_column(BigInteger, nullable=False)  # Telegram user ID
-    message_type: Mapped[str] = mapped_column(String(16), default="TEXT", nullable=False)  # TEXT, PHOTO, DOCUMENT
+    sender_type: Mapped[str] = mapped_column(String(16), nullable=False)
+    sender_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    message_type: Mapped[str] = mapped_column(String(16), default="TEXT", nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     telegram_message_id: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
 
     order: Mapped[Optional["Order"]] = relationship("Order", back_populates="messages")
     user: Mapped["User"] = relationship("User", back_populates="messages")
-
 
 class Portfolio(Base):
     __tablename__ = "portfolio"
@@ -95,13 +84,12 @@ class Portfolio(Base):
 
     media: Mapped[List["PortfolioMedia"]] = relationship("PortfolioMedia", back_populates="portfolio", cascade="all, delete-orphan")
 
-
 class PortfolioMedia(Base):
     __tablename__ = "portfolio_media"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     portfolio_id: Mapped[int] = mapped_column(Integer, ForeignKey("portfolio.id", ondelete="CASCADE"), nullable=False)
-    file_id: Mapped[str] = mapped_column(String(256), nullable=False)  # Telegram file_id or local asset path
+    file_id: Mapped[str] = mapped_column(String(256), nullable=False)
     media_type: Mapped[str] = mapped_column(String(16), default="PHOTO", nullable=False)
     caption: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -109,17 +97,15 @@ class PortfolioMedia(Base):
 
     portfolio: Mapped["Portfolio"] = relationship("Portfolio", back_populates="media")
 
-
 class Testimonial(Base):
     __tablename__ = "testimonials"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    file_id: Mapped[str] = mapped_column(String(256), nullable=False)  # Telegram file_id or local asset path
+    file_id: Mapped[str] = mapped_column(String(256), nullable=False)
     caption: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
-
 
 class AdminAuditLog(Base):
     __tablename__ = "admin_audit_logs"

@@ -1,5 +1,3 @@
-"""Handlers for order creation flow."""
-
 from datetime import datetime
 from aiogram import Bot, F, Router
 from aiogram.filters import Command
@@ -20,21 +18,17 @@ from besporman_tg_bot.utils.profanity_filter import is_profane
 
 router = Router(name="order")
 
-
 @router.message(Command("order"))
 @router.message(F.text == texts.BTN_ORDER)
 async def handle_order_start(message: Message, state: FSMContext) -> None:
-    """Initiate order submission flow."""
     await state.set_state(OrderStates.waiting_for_description)
     await message.answer(
         text=texts.ORDER_INTRO,
         reply_markup=get_cancel_keyboard(),
     )
 
-
 @router.callback_query(F.data == "order_start")
 async def handle_order_start_callback(callback: CallbackQuery, state: FSMContext) -> None:
-    """Initiate order submission from inline button."""
     await callback.answer()
     await state.set_state(OrderStates.waiting_for_description)
     if callback.message:
@@ -43,14 +37,12 @@ async def handle_order_start_callback(callback: CallbackQuery, state: FSMContext
             reply_markup=get_cancel_keyboard(),
         )
 
-
 @router.callback_query(F.data.startswith("order_similar:"))
 async def handle_order_similar_callback(
     callback: CallbackQuery,
     state: FSMContext,
     session: AsyncSession,
 ) -> None:
-    """Initiate order submission for a project similar to a portfolio item."""
     await callback.answer()
     project_id = int(callback.data.split(":")[1])
     project = await get_portfolio_by_id(session, project_id)
@@ -71,7 +63,6 @@ async def handle_order_similar_callback(
             reply_markup=get_cancel_keyboard(),
         )
 
-
 @router.message(OrderStates.waiting_for_description, F.text)
 async def handle_order_description(
     message: Message,
@@ -80,15 +71,12 @@ async def handle_order_description(
     db_user: User,
     bot: Bot,
 ) -> None:
-    """Receive order description, persist order, and notify admins."""
     description = message.text.strip()
 
-    # Check profanity
     if is_profane(description):
         await message.answer(texts.PROFANITY_BLOCKED)
         return
 
-    # Check state metadata for similar project
     state_data = await state.get_data()
     similar_id = state_data.get("similar_project_id")
     if similar_id:
@@ -96,14 +84,12 @@ async def handle_order_description(
         if project:
             description = f"[سفارش مشابه پروژه: {project.title}]\n\n{description}"
 
-    # Create order
     order = await create_order(
         session=session,
         user_id=db_user.id,
         description=description,
     )
 
-    # Save initial message
     await save_message(
         session=session,
         user_id=db_user.id,
@@ -116,13 +102,11 @@ async def handle_order_description(
 
     await state.clear()
 
-    # Confirm to client
     await message.answer(
         text=texts.ORDER_CREATED_CONFIRMATION.format(order_number=order.public_order_number),
         reply_markup=get_main_menu_keyboard(),
     )
 
-    # Format admin notification
     client_name = message.from_user.full_name or "نامشخص"
     username_str = f"@{message.from_user.username}" if message.from_user.username else "ندارد"
     created_time = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
@@ -138,7 +122,6 @@ async def handle_order_description(
         f"⏰ زمان ثبت: {created_time}"
     )
 
-    # Send to both configured admins
     for admin_id in settings.ADMIN_IDS:
         try:
             await bot.send_message(
@@ -148,5 +131,4 @@ async def handle_order_description(
                 parse_mode="Markdown",
             )
         except Exception:
-            # Handle cases where bot cannot reach admin chat (e.g. test or blocked)
             pass

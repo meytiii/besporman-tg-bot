@@ -1,7 +1,3 @@
-"""User keyboards and navigation interfaces.
-CRITICAL: ZERO ZWNJ in all button labels.
-"""
-
 from typing import List, Optional
 from aiogram.types import (
     InlineKeyboardButton,
@@ -13,9 +9,7 @@ from aiogram.types import (
 from besporman_tg_bot.core import texts
 from besporman_tg_bot.db.models import Portfolio
 
-
 def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
-    """Persistent user main menu reply keyboard."""
     keyboard = [
         [KeyboardButton(text=texts.BTN_ORDER)],
         [KeyboardButton(text=texts.BTN_SERVICES), KeyboardButton(text=texts.BTN_PORTFOLIO)],
@@ -28,31 +22,23 @@ def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
         is_persistent=True,
     )
 
-
 def get_cancel_keyboard() -> ReplyKeyboardMarkup:
-    """Universal cancel reply keyboard."""
     keyboard = [[KeyboardButton(text=texts.BTN_CANCEL)]]
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
 
-
 def get_back_inline_keyboard(callback_data: str = "nav_main_menu") -> InlineKeyboardMarkup:
-    """Generic inline back button."""
     return InlineKeyboardMarkup(
         inline_keyboard=[[InlineKeyboardButton(text=texts.BTN_BACK, callback_data=callback_data)]]
     )
 
-
 def get_services_keyboard() -> InlineKeyboardMarkup:
-    """Keyboard for work categories section."""
     keyboard = [
         [InlineKeyboardButton(text=texts.BTN_SERVICE_ORDER, callback_data="order_start")],
         [InlineKeyboardButton(text=texts.BTN_BACK, callback_data="nav_main_menu")],
     ]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-
 def get_portfolio_list_keyboard(items: List[Portfolio]) -> InlineKeyboardMarkup:
-    """Portfolio items list keyboard."""
     buttons = []
     for item in items:
         buttons.append([InlineKeyboardButton(text=item.title, callback_data=f"port_detail:{item.id}")])
@@ -60,13 +46,11 @@ def get_portfolio_list_keyboard(items: List[Portfolio]) -> InlineKeyboardMarkup:
     buttons.append([InlineKeyboardButton(text=texts.BTN_BACK, callback_data="nav_main_menu")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-
 def get_portfolio_detail_keyboard(
     current_id: int,
     prev_id: Optional[int] = None,
     next_id: Optional[int] = None,
 ) -> InlineKeyboardMarkup:
-    """Detail view keyboard with pagination and similar order CTA."""
     keyboard = []
     nav_row = []
     if prev_id is not None:
@@ -81,9 +65,7 @@ def get_portfolio_detail_keyboard(
     keyboard.append([InlineKeyboardButton(text=texts.BTN_BACK_TO_PORTFOLIO, callback_data="port_list")])
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-
 def get_testimonial_keyboard() -> InlineKeyboardMarkup:
-    """Customer testimonials navigation keyboard."""
     keyboard = [
         [InlineKeyboardButton(text=texts.BTN_ANOTHER_TESTIMONIAL, callback_data="testim_another")],
         [InlineKeyboardButton(text=texts.BTN_START_MY_PROJECT, callback_data="order_start")],
@@ -91,9 +73,7 @@ def get_testimonial_keyboard() -> InlineKeyboardMarkup:
     ]
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-
 def get_team_keyboard() -> InlineKeyboardMarkup:
-    """Team overview and resume viewing keyboard."""
     keyboard = [
         [InlineKeyboardButton(text=texts.BTN_RESUME_DEV1, callback_data="resume_dev1")],
         [InlineKeyboardButton(text=texts.BTN_RESUME_DEV2, callback_data="resume_dev2")],

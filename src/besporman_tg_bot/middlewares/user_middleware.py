@@ -1,12 +1,9 @@
-"""User registration and synchronization middleware."""
-
 from typing import Any, Awaitable, Callable, Dict
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, User as TgUser
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from besporman_tg_bot.services.user_service import get_or_create_user
-
 
 class UserMiddleware(BaseMiddleware):
     async def __call__(

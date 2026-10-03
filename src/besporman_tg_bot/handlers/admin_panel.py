@@ -1,5 +1,3 @@
-"""Admin dashboard and management panel."""
-
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
@@ -17,12 +15,9 @@ router = Router(name="admin_panel")
 router.message.filter(IsAdminFilter())
 router.callback_query.filter(IsAdminFilter())
 
-
 @router.message(Command("admin"))
 @router.message(Command("panel"))
 async def handle_admin_dashboard(message: Message, session: AsyncSession) -> None:
-    """Show admin panel dashboard."""
-    # Count stats
     total_users = (await session.execute(select(func.count(User.id)))).scalar() or 0
     total_orders = (await session.execute(select(func.count(Order.id)))).scalar() or 0
     new_orders = (await session.execute(select(func.count(Order.id)).where(Order.status == OrderStatus.NEW))).scalar() or 0
@@ -41,10 +36,8 @@ async def handle_admin_dashboard(message: Message, session: AsyncSession) -> Non
         parse_mode="HTML",
     )
 
-
 @router.callback_query(F.data.startswith("adm_list:"))
 async def handle_admin_order_list(callback: CallbackQuery, session: AsyncSession) -> None:
-    """List orders by filter (NEW / ACTIVE)."""
     await callback.answer()
     category = callback.data.split(":")[1]
 
@@ -77,10 +70,8 @@ async def handle_admin_order_list(callback: CallbackQuery, session: AsyncSession
             reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons),
         )
 
-
 @router.callback_query(F.data == "adm_dashboard")
 async def handle_return_dashboard(callback: CallbackQuery, session: AsyncSession) -> None:
-    """Return to dashboard menu."""
     await callback.answer()
     total_users = (await session.execute(select(func.count(User.id)))).scalar() or 0
     total_orders = (await session.execute(select(func.count(Order.id)))).scalar() or 0
@@ -101,15 +92,12 @@ async def handle_return_dashboard(callback: CallbackQuery, session: AsyncSession
             parse_mode="HTML",
         )
 
-
 @router.callback_query(F.data == "adm_stats")
 async def handle_admin_stats(callback: CallbackQuery, session: AsyncSession) -> None:
-    """Display comprehensive system statistics."""
     await callback.answer()
     total_users = (await session.execute(select(func.count(User.id)))).scalar() or 0
     total_orders = (await session.execute(select(func.count(Order.id)))).scalar() or 0
 
-    # Count by status
     status_counts = {}
     for st_key in texts.STATUS_LABELS.keys():
         count = (await session.execute(select(func.count(Order.id)).where(Order.status == st_key))).scalar() or 0
@@ -134,10 +122,8 @@ async def handle_admin_stats(callback: CallbackQuery, session: AsyncSession) -> 
             parse_mode="HTML",
         )
 
-
 @router.callback_query(F.data == "adm_audit_logs")
 async def handle_admin_audit_logs(callback: CallbackQuery, session: AsyncSession) -> None:
-    """Display recent admin audit logs."""
     await callback.answer()
     logs = await get_recent_audit_logs(session, limit=10)
 

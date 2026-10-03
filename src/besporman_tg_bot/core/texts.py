@@ -1,14 +1,8 @@
-# Persian texts for Bespor Man (بسپر من) Telegram Bot
-# CRITICAL RULE: ABSOLUTELY ZERO ZWNJ / U+200C.
-# All Persian words use normal spaces (e.g. می خواهم, بهترین ها, برنامه نویسی, می توانید).
-
-# --- Common & Navigation ---
 BTN_BACK = "🔙 بازگشت"
 BTN_CANCEL = "❌ لغو"
 ACTION_CANCELLED = "عملیات لغو شد. برگشتیم به منوی اصلی. 🫡"
 GENERIC_ERROR = "یه چیزی این وسط خوب پیش نرفت 😅\n\nدوباره امتحانش کن. اگه درست نشد، بهمون خبر بده."
 
-# --- Main Menu ---
 BTN_ORDER = "🚀 ثبت سفارش"
 BTN_SERVICES = "🛠 زمینه های کاری"
 BTN_PORTFOLIO = "👀 نمونه کارها"
@@ -26,7 +20,6 @@ START_WELCOME = (
 
 MAIN_MENU_PROMPT = "از دکمه های زیر انتخاب کن:"
 
-# --- Order Flow ---
 ORDER_INTRO = (
     "خوشحالم رسیدی اینجا. 😎\n\n"
     "یعنی یا کارمون به دلت نشسته، یا حداقل کنجکاوی ببینی اینا آخرش چی از آب درمیارن. 😂\n\n"
@@ -45,7 +38,6 @@ ORDER_CREATED_CONFIRMATION = (
 
 ORDER_SIMILAR_PROMPT = "می خوای یه پروژه شبیه این برات بسازیم؟ عالیه! توضیحات یا تغییراتی که مد نظر داری رو بنویس 👇"
 
-# --- Areas of Work (زمینه های کاری) ---
 SERVICES_TEXT = (
     "🛠 زمینه های کاری تیم بسپر من\n\n"
     "ببین عزیز، اینا چیزاییه که تیم ما باهاشون سر و کله می زنه: 😌\n\n"
@@ -68,7 +60,6 @@ SERVICES_TEXT = (
 
 BTN_SERVICE_ORDER = "🚀 ثبت سفارش در این زمینه"
 
-# --- Portfolio (نمونه کارها) ---
 PORTFOLIO_INTRO = (
     "ببینیم قبلا چه چیزایی پخت و پز کردیم. 🤩\n\n"
     "چندتا از پروژه هایی که انجام دادیم رو ببین.\n\n"
@@ -82,7 +73,6 @@ BTN_NEXT_PROJECT = "➡️ پروژه بعدی"
 BTN_BACK_TO_PORTFOLIO = "🔙 بازگشت به لیست نمونه کارها"
 NO_PORTFOLIO_ITEMS = "هنوز پروژه ای در این بخش ثبت نشده است. به زودی به روز رسانی می شود."
 
-# --- Customer Testimonials (رضایت مشتری ها) ---
 TESTIMONIAL_INTRO = (
     "خب خب... رسیدیم به قسمت مورد علاقه ما. 😌\n\n"
     "ما که نمی تونیم بشینیم از خودمون تعریف کنیم؛ زشته. 😂\n\n"
@@ -94,7 +84,6 @@ BTN_ANOTHER_TESTIMONIAL = "😍 یکی دیگه نشون بده"
 BTN_START_MY_PROJECT = "🚀 پروژه منو شروع کنیم"
 NO_TESTIMONIALS_YET = "در حال حاضر رضایت های جدید در حال آماده سازی هستند."
 
-# --- Team & Resumes (تیم و رزومه) ---
 TEAM_INTRO = (
     "👨‍💻 تیم توسعه بسپر من\n\n"
     "ما یه تیم جمع و جور، هماهنگ و متمرکز هستیم که ترجیح می دیم به جای شعارهای گنده، "
@@ -113,7 +102,6 @@ DEV_2_BIO = "متخصص فرآیندهای اتوماسیون، بهینه سا�
 BTN_RESUME_DEV1 = "📄 مشاهده رزومه م.خ"
 BTN_RESUME_DEV2 = "📄 مشاهده رزومه ط.ذ"
 
-# --- Support (پشتیبانی) ---
 SUPPORT_INTRO = (
     "هرچی دل تنگت می خواهد به تیم بسپر من بگو. 🥰\n\n"
     "سوال، پیشنهاد، انتقاد، تعریف، شکایت... همه رو می خونیم.\n\n"
@@ -132,7 +120,6 @@ PROFANITY_BLOCKED = (
     "یه بار دیگه با ادبیات مناسب تر بنویسش که دعوا نشه. 🤝"
 )
 
-# --- Admin Notifications & Bridge ---
 ADMIN_NEW_ORDER_TITLE = "🚨 سفارش جدید"
 ADMIN_ORDER_STATUS_LABEL = "وضعیت: {status_label}"
 ADMIN_CLIENT_ANSWER_TITLE = "📩 پاسخ مشتری به سفارش #{order_number}"
@@ -156,7 +143,6 @@ CLIENT_RECEIVE_TEAM_MESSAGE = (
 
 CLIENT_ANSWER_CONFIRMATION = "پاسخت برای تیم بسپر من ارسال شد. تشکر! 🌸"
 
-# --- Order Statuses ---
 STATUS_LABELS = {
     "NEW": "🟡 جدید",
     "UNDER_REVIEW": "🔵 در حال بررسی",
@@ -167,5 +153,4 @@ STATUS_LABELS = {
     "CLOSED": "⚪ بسته شد",
 }
 
-# --- Anti-Spam / Rate Limiting ---
 RATE_LIMIT_WARNING = "خیلی تند و پشت سر هم پیام فرستادی دوست عزیز! 😅 یه چند ثانیه استراحت بده و دوباره امتحان کن."

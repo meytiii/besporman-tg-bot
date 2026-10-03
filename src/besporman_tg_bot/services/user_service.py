@@ -1,11 +1,8 @@
-"""User service for managing bot users."""
-
 from datetime import datetime
 from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from besporman_tg_bot.db.models import User
-
 
 async def get_or_create_user(
     session: AsyncSession,
@@ -13,13 +10,11 @@ async def get_or_create_user(
     username: Optional[str] = None,
     first_name: Optional[str] = None,
 ) -> User:
-    """Fetch existing user or create a new one."""
     stmt = select(User).where(User.telegram_id == telegram_id)
     result = await session.execute(stmt)
     user = result.scalar_one_or_none()
 
     if user:
-        # Update user profile if changed
         updated = False
         if user.username != username:
             user.username = username
@@ -45,9 +40,7 @@ async def get_or_create_user(
     await session.refresh(user)
     return user
 
-
 async def get_user_by_telegram_id(session: AsyncSession, telegram_id: int) -> Optional[User]:
-    """Retrieve a user by their Telegram numeric ID."""
     stmt = select(User).where(User.telegram_id == telegram_id)
     result = await session.execute(stmt)
     return result.scalar_one_or_none()

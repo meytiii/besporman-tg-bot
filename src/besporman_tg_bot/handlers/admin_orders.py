@@ -1,5 +1,3 @@
-"""Handlers for administrative order management and status transitions."""
-
 from aiogram import F, Router
 from aiogram.types import CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,10 +15,8 @@ router = Router(name="admin_orders")
 router.message.filter(IsAdminFilter())
 router.callback_query.filter(IsAdminFilter())
 
-
 @router.callback_query(F.data.startswith("adm_view_order:"))
 async def handle_view_order(callback: CallbackQuery, session: AsyncSession) -> None:
-    """Return to order view with actions."""
     await callback.answer()
     order_id = int(callback.data.split(":")[1])
     order = await get_order_by_id(session, order_id)
@@ -43,10 +39,8 @@ async def handle_view_order(callback: CallbackQuery, session: AsyncSession) -> N
             reply_markup=get_admin_order_actions_keyboard(order.id),
         )
 
-
 @router.callback_query(F.data.startswith("adm_status_menu:"))
 async def handle_status_menu(callback: CallbackQuery) -> None:
-    """Show status selection keyboard for order."""
     await callback.answer()
     order_id = int(callback.data.split(":")[1])
     if callback.message:
@@ -55,10 +49,8 @@ async def handle_status_menu(callback: CallbackQuery) -> None:
             reply_markup=get_admin_status_selection_keyboard(order_id),
         )
 
-
 @router.callback_query(F.data.startswith("adm_set_status:") | F.data.startswith("adm_quick_status:"))
 async def handle_set_status(callback: CallbackQuery, session: AsyncSession) -> None:
-    """Update order status and write to audit log."""
     await callback.answer()
     parts = callback.data.split(":")
     order_id = int(parts[1])
@@ -78,7 +70,6 @@ async def handle_set_status(callback: CallbackQuery, session: AsyncSession) -> N
 
     await update_order_status(session, order_id, new_status)
 
-    # Record in audit trail
     await log_admin_action(
         session=session,
         admin_telegram_id=callback.from_user.id,

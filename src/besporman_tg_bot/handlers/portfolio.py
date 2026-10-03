@@ -1,5 +1,3 @@
-"""Handlers for portfolio showcase and project details."""
-
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
@@ -18,11 +16,9 @@ from besporman_tg_bot.services.portfolio_service import (
 
 router = Router(name="portfolio")
 
-
 @router.message(Command("portfolio"))
 @router.message(F.text == texts.BTN_PORTFOLIO)
 async def handle_portfolio_menu(message: Message, session: AsyncSession) -> None:
-    """Show list of active portfolio items."""
     items = await get_active_portfolios(session)
     if not items:
         await message.answer(
@@ -36,10 +32,8 @@ async def handle_portfolio_menu(message: Message, session: AsyncSession) -> None
         reply_markup=get_portfolio_list_keyboard(items),
     )
 
-
 @router.callback_query(F.data == "port_list")
 async def handle_portfolio_list_callback(callback: CallbackQuery, session: AsyncSession) -> None:
-    """Return to portfolio list."""
     await callback.answer()
     items = await get_active_portfolios(session)
     if not items:
@@ -56,10 +50,8 @@ async def handle_portfolio_list_callback(callback: CallbackQuery, session: Async
             reply_markup=get_portfolio_list_keyboard(items),
         )
 
-
 @router.callback_query(F.data.startswith("port_detail:"))
 async def handle_portfolio_detail(callback: CallbackQuery, session: AsyncSession) -> None:
-    """Display detailed view for a single portfolio project."""
     await callback.answer()
     project_id = int(callback.data.split(":")[1])
     project = await get_portfolio_by_id(session, project_id)
@@ -69,7 +61,6 @@ async def handle_portfolio_detail(callback: CallbackQuery, session: AsyncSession
             await callback.message.answer("این نمونه کار پیدا نشد.")
         return
 
-    # Calculate prev and next project IDs
     all_projects = await get_active_portfolios(session)
     project_ids = [p.id for p in all_projects]
     prev_id = None

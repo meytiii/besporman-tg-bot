@@ -1,5 +1,3 @@
-"""Handlers for customer satisfaction showcases (رضایت مشتری ها)."""
-
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.types import CallbackQuery, Message
@@ -14,11 +12,9 @@ from besporman_tg_bot.services.testimonial_service import get_random_testimonial
 
 router = Router(name="testimonials")
 
-
 @router.message(Command("testimonials"))
 @router.message(F.text == texts.BTN_TESTIMONIALS)
 async def handle_testimonials_menu(message: Message, session: AsyncSession) -> None:
-    """Show initial customer testimonial."""
     testimonial = await get_random_testimonial(session)
     if not testimonial:
         await message.answer(
@@ -40,10 +36,8 @@ async def handle_testimonials_menu(message: Message, session: AsyncSession) -> N
         reply_markup=get_testimonial_keyboard(),
     )
 
-
 @router.callback_query(F.data == "testim_another")
 async def handle_another_testimonial(callback: CallbackQuery, session: AsyncSession) -> None:
-    """Show another random customer testimonial."""
     await callback.answer()
     testimonial = await get_random_testimonial(session)
     if not testimonial:

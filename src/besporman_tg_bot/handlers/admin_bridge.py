@@ -1,12 +1,3 @@
-"""Admin <-> Client communication bridge.
-
-Enforces intermediary communication:
-- Client receives messages exclusively from 'بسپر من'
-- Admin's personal Telegram ID is strictly hidden
-- Client replies are linked directly to the order and delivered to both admins
-- All actions recorded in audit log
-"""
-
 from aiogram import Bot, F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.storage.base import StorageKey
@@ -29,12 +20,8 @@ from besporman_tg_bot.states.user_states import AdminBridgeStates, ClientBridgeS
 
 router = Router(name="admin_bridge")
 
-
-# --- Admin-side Actions (Protected by IsAdminFilter) ---
-
 @router.callback_query(IsAdminFilter(), F.data.startswith("adm_reply:"))
 async def handle_admin_reply_click(callback: CallbackQuery, state: FSMContext) -> None:
-    """Prompt admin for reply message text."""
     await callback.answer()
     order_id = int(callback.data.split(":")[1])
     await state.set_state(AdminBridgeStates.waiting_for_reply_content)
@@ -46,10 +33,8 @@ async def handle_admin_reply_click(callback: CallbackQuery, state: FSMContext) -
             reply_markup=get_admin_cancel_keyboard(),
         )
 
-
 @router.callback_query(IsAdminFilter(), F.data.startswith("adm_ask:"))
 async def handle_admin_ask_click(callback: CallbackQuery, state: FSMContext) -> None:
-    """Prompt admin for question to ask client."""
     await callback.answer()
     order_id = int(callback.data.split(":")[1])
     await state.set_state(AdminBridgeStates.waiting_for_info_question)
@@ -61,15 +46,12 @@ async def handle_admin_ask_click(callback: CallbackQuery, state: FSMContext) -> 
             reply_markup=get_admin_cancel_keyboard(),
         )
 
-
 @router.callback_query(IsAdminFilter(), F.data == "adm_cancel")
 async def handle_admin_cancel(callback: CallbackQuery, state: FSMContext) -> None:
-    """Cancel active admin bridge state."""
     await state.clear()
     await callback.answer("عملیات لغو شد.")
     if callback.message:
         await callback.message.delete()
-
 
 @router.message(IsAdminFilter(), AdminBridgeStates.waiting_for_reply_content, F.text)
 @router.message(IsAdminFilter(), AdminBridgeStates.waiting_for_info_question, F.text)
@@ -79,7 +61,6 @@ async def handle_admin_bridge_send(
     session: AsyncSession,
     bot: Bot,
 ) -> None:
-    """Send admin message to client on behalf of 'بسپر من' and set client awaiting state."""
     state_data = await state.get_data()
     order_id = state_data.get("bridge_order_id")
     order = await get_order_by_id(session, order_id)
@@ -92,7 +73,6 @@ async def handle_admin_bridge_send(
     admin_msg_text = message.text.strip()
     client_tg_id = order.user.telegram_id
 
-    # Client-facing message format (strictly as 'بسپر من')
     client_text = texts.CLIENT_RECEIVE_TEAM_MESSAGE.format(
         order_number=order.public_order_number,
         message_text=admin_msg_text,
@@ -104,7 +84,6 @@ async def handle_admin_bridge_send(
             text=client_text,
         )
 
-        # Set client FSM state so their next message routes back to this order
         client_state_key = StorageKey(
             bot_id=bot.id,
             chat_id=client_tg_id,
@@ -114,7 +93,6 @@ async def handle_admin_bridge_send(
         await client_fsm.set_state(ClientBridgeStates.waiting_for_answer)
         await client_fsm.update_data(bridge_order_id=order.id)
 
-        # Save message in DB
         await save_message(
             session=session,
             user_id=order.user_id,
@@ -125,7 +103,6 @@ async def handle_admin_bridge_send(
             telegram_message_id=sent.message_id,
         )
 
-        # Audit log
         await log_admin_action(
             session=session,
             admin_telegram_id=message.from_user.id,
@@ -141,9 +118,6 @@ async def handle_admin_bridge_send(
 
     await state.clear()
 
-
-# --- Client-side Reply Reception ---
-
 @router.message(ClientBridgeStates.waiting_for_answer, F.text)
 async def handle_client_bridge_answer(
     message: Message,
@@ -151,7 +125,6 @@ async def handle_client_bridge_answer(
     session: AsyncSession,
     bot: Bot,
 ) -> None:
-    """Receive client response, associate with order, and dispatch to both admins."""
     state_data = await state.get_data()
     order_id = state_data.get("bridge_order_id")
     order = await get_order_by_id(session, order_id)
@@ -160,7 +133,6 @@ async def handle_client_bridge_answer(
     client_user = await get_user_by_telegram_id(session, message.from_user.id)
 
     if order and client_user:
-        # Save client answer
         await save_message(
             session=session,
             user_id=client_user.id,
@@ -171,7 +143,6 @@ async def handle_client_bridge_answer(
             telegram_message_id=message.message_id,
         )
 
-        # Notification for both admins
         admin_notification = (
             f"📩 پاسخ مشتری به سفارش #{order.public_order_number}\n\n"
             f"👤 مشتری: {message.from_user.full_name} (@{message.from_user.username or 'ندارد'})\n\n"

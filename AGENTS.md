@@ -38,4 +38,4 @@ Always adhere to the following rules when working in this repository:
 7. **TASK COMPLETION: COMMIT SUMMARY & DESCRIPTION:**
    - Whenever a task is completed, you must always provide a structured commit summary (following Conventional Commits format, e.g., `feat: ...`, `fix: ...`, `refactor: ...`) and a concise, meaningful description of the changes made.
 
-Refer to [PROJECT_NOTES.md](file:///c:/Users/Mahdi/Desktop/Stuf/Github\besporman-tg-bot\PROJECT_NOTES.md) for full project details.
+Refer to PROJECT_NOTES.md for full project details.

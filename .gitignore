@@ -232,6 +232,7 @@ env/
 # Databases & logs
 *.sqlite3
 *.db
+*.db-*
 *.log
 
 .agents/

@@ -1,0 +1,55 @@
+"""ZWNJ (Zero Width Non-Joiner / Half-Space / U+200C) detection and sanitization utilities.
+
+Enforces the absolute project requirement:
+ZERO ZWNJ in all Persian user-facing text, button labels, templates, messages, DB content, and logs.
+"""
+
+from pathlib import Path
+from typing import List, Tuple
+
+ZWNJ_CHAR = "\u200c"
+ZWNJ_BYTES = b"\xe2\x80\x8c"
+
+
+def contains_zwnj(text: str) -> bool:
+    """Check if the provided text contains any ZWNJ character."""
+    if not text:
+        return False
+    return ZWNJ_CHAR in text
+
+
+def sanitize_zwnj(text: str) -> str:
+    """Replace any ZWNJ character with a standard space."""
+    if not text:
+        return ""
+    return text.replace(ZWNJ_CHAR, " ")
+
+
+def scan_directory_for_zwnj(root_path: Path) -> List[Tuple[str, int, str]]:
+    """Scan all source code, markdown, templates, and data files for ZWNJ.
+
+    Returns a list of tuples: (relative_file_path, line_number, line_content).
+    """
+    violations: List[Tuple[str, int, str]] = []
+    ignored_parts = {".git", ".venv", "__pycache__", ".pytest_cache", ".ruff_cache"}
+
+    for path in root_path.rglob("*"):
+        if not path.is_file():
+            continue
+        if any(part in path.parts for part in ignored_parts):
+            continue
+        # Only inspect text-based files
+        if path.suffix.lower() not in {".py", ".md", ".json", ".txt", ".sql", ".env", ".example", ".yaml", ".yml"}:
+            continue
+
+        try:
+            content = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            continue
+
+        if ZWNJ_CHAR in content:
+            for idx, line in enumerate(content.splitlines(), start=1):
+                if ZWNJ_CHAR in line:
+                    violations.append((str(path.relative_to(root_path)), idx, line.strip()))
+
+    return violations

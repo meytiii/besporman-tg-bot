@@ -5,6 +5,7 @@ ZERO ZWNJ in all Persian user-facing text, button labels, templates, messages, D
 """
 
 from pathlib import Path
+import sys
 from typing import List, Tuple
 
 ZWNJ_CHAR = "\u200c"
@@ -53,3 +54,19 @@ def scan_directory_for_zwnj(root_path: Path) -> List[Tuple[str, int, str]]:
                     violations.append((str(path.relative_to(root_path)), idx, line.strip()))
 
     return violations
+
+
+def main() -> None:
+    """CLI scanner entrypoint."""
+    root = Path.cwd()
+    violations = scan_directory_for_zwnj(root)
+    if violations:
+        print(f"FAILED: {len(violations)} ZWNJ (U+200C) violations detected:")
+        for file_path, line_no, content in violations:
+            print(f"  [!] {file_path}:{line_no} -> {content}")
+        sys.exit(1)
+    print("SUCCESS: 0 occurrences of ZWNJ (U+200C) detected across entire project.")
+
+
+if __name__ == "__main__":
+    main()

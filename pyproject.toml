@@ -16,6 +16,7 @@ dependencies = [
 
 [project.scripts]
 besporman-tg-bot = "besporman_tg_bot:main"
+besporman-zwnj-check = "besporman_tg_bot.utils.zwnj_sanitizer:main"
 
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]

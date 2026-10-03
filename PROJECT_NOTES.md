@@ -62,3 +62,14 @@
 - **Portfolio & Testimonials:** Inline buttons, detail views, multi-image support, random testimonial viewer, "Start Similar Order" CTA.
 - **Navigation:** Clear back (`🔙 بازگشت`) and cancel (`❌ لغو`) buttons at all steps. No dead-ends.
 - **Security & Reliability:** Rate limiting, flood prevention, callback safety, idempotency on webhooks/updates, environment-based configuration (`.env`).
+
+---
+
+## 8. Absolute Ban on Code Comments
+- NEVER write any `#` comments or docstrings (`"""..."""`) in source code files, configurations, or tests.
+- Code must be clean, readable, self-explanatory, and free of comment noise.
+
+---
+
+## 9. Task Completion: Commit Summary & Description
+- Whenever a task is completed, always provide a structured commit summary (Conventional Commits format: `feat: ...`, `fix: ...`, `refactor: ...`, `chore: ...`) and a concise, meaningful description of changes made.

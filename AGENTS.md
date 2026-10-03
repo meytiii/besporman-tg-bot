@@ -31,4 +31,11 @@ Always adhere to the following rules when working in this repository:
    - Public team aliases: `م.خ` and `ط.ذ`.
    - Use clear placeholders where real assets are pending.
 
-Refer to [PROJECT_NOTES.md](file:///c:/Users/Mahdi/Desktop/Stuf/Github/besporman-tg-bot/PROJECT_NOTES.md) for full project details.
+6. **NO CODE COMMENTS:**
+   - Absolutely NEVER write any comments (`#`) or docstrings (`"""..."""`) in source code files, configurations, or tests from now on.
+   - Code must be clean, readable, self-explanatory, and free of any inline, block, or docstring comments.
+
+7. **TASK COMPLETION: COMMIT SUMMARY & DESCRIPTION:**
+   - Whenever a task is completed, you must always provide a structured commit summary (following Conventional Commits format, e.g., `feat: ...`, `fix: ...`, `refactor: ...`) and a concise, meaningful description of the changes made.
+
+Refer to [PROJECT_NOTES.md](file:///c:/Users/Mahdi/Desktop/Stuf/Github\besporman-tg-bot\PROJECT_NOTES.md) for full project details.
